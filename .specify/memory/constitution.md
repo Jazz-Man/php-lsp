@@ -1,55 +1,144 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report
+==================
+Version change: [NEW] → 1.0.0 (Initial constitution ratification)
+Modified principles: N/A (Initial creation)
+Added sections:
+  - Core Principles (I-VII)
+  - Technology Stack Constraints
+  - Quality Standards
+  - Governance
+Removed sections: N/A
+Templates requiring updates:
+  ✅ .specify/templates/plan-template.md - updated (constitution checks, tech context, project structure)
+  ✅ .specify/templates/spec-template.md - updated (constitution compliance section added)
+  ✅ .specify/templates/tasks-template.md - updated (required tests, Rust paths, quality standards)
+Follow-up TODOs: None
+-->
+
+# PHP LSP Server Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Async Non-Blocking Architecture
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+All LSP handlers MUST use async/await patterns and MUST NOT block the tokio runtime.
+Long-running operations (parsing, indexing, file I/O) MUST yield control regularly.
+Tower middleware layers MUST be composable and non-blocking.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+**Rationale**: Language servers must remain responsive during large project operations.
+Blocking operations freeze the editor and degrade user experience.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### II. PHP Version Detection and Compliance
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+Default PHP version is 8.0 or higher. The server MUST read `composer.json` to detect
+the project's required PHP version from `require.php` or `config.platform.php`.
+Code analysis and suggestions MUST respect the detected PHP version's features and syntax.
 
-### [PRINCIPLE_6_NAME]
+**Rationale**: Different PHP projects target different versions. Features like union types
+(8.0+), enums (8.1+), and readonly properties vary by version.
 
+### III. PHPDoc Parsing and Type Inference
 
-[PRINCIPLE__DESCRIPTION]
+The server MUST parse and honor PHPDoc annotations including:
+- Standard tags: `@param`, `@return`, `@var`, `@throws`, `@property`
+- Template/generic types: `@template`, `@extends`, `@implements`
+- Static analysis extensions: Psalm and PHPStan annotations (`@psalm-*`, `@phpstan-*`)
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+Type information from PHPDoc MUST take precedence over inferred types when explicit.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+**Rationale**: PHPDoc is the standard for documenting PHP types, especially generics
+and complex types that native PHP syntax cannot express.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+### IV. WordPress Hooks Integration
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+The server MUST provide go-to-definition support for WordPress hooks:
+- `add_action()` → `do_action()` call sites
+- `add_filter()` → `apply_filters()` call sites
+- Custom hooks defined in project code
+
+Hook discovery MUST work across file boundaries in the project workspace.
+
+**Rationale**: WordPress development heavily relies on hooks. Navigation between
+hook registration and invocation is essential for productivity.
+
+### V. Incremental Parsing and Memory Efficiency
+
+Use tree-sitter's incremental parsing for document edits. The server MUST NOT
+reparse entire files on each keystroke. Index structures MUST be memory-efficient
+and support partial updates.
+
+Large projects (1000+ files) MUST remain usable on machines with 8GB RAM.
+
+**Rationale**: Full reparse on every edit causes lag. Memory bloat makes the server
+unusable on typical developer machines.
+
+### VI. Extension Dependency Validation
+
+When PHP code uses extension-specific functions (e.g., `json_encode`, `mysqli_connect`),
+the server SHOULD warn if the corresponding `ext-*` dependency is missing from
+`composer.json` `require` or `require-dev`.
+
+**Rationale**: Missing extension declarations cause runtime failures in deployment.
+Early detection prevents production issues.
+
+### VII. Reliability and Observability
+
+The server MUST NOT panic. All errors MUST be handled gracefully with Result/Option types.
+Tracing logs MUST be emitted for all LSP requests/responses and significant operations.
+All public APIs MUST have documentation comments explaining purpose, parameters, and behavior.
+
+**Rationale**: Language servers run in user editors; crashes lose unsaved work and trust.
+Observability enables debugging reported issues.
+
+## Technology Stack Constraints
+
+**Language**: Rust edition 2021 or 2024
+**LSP Framework**: async-lsp 0.2.2 or compatible
+**Parser**: tree-sitter-php 0.24.2 or compatible
+**Runtime**: tokio (latest stable)
+**Middleware**: tower (latest stable)
+
+Dependency updates MUST maintain API compatibility or include migration guides.
+
+## Quality Standards
+
+### Testing
+Every feature MUST have unit tests. Complex features (cross-file resolution,
+incremental updates) MUST have integration tests. Test coverage target is 80%+.
+
+### Error Handling
+MUST use `Result<T, E>` for fallible operations. MUST use `Option<T>` for nullable
+values. `unwrap()` and `expect()` are forbidden in production code paths
+(test code may use them).
+
+### Logging
+MUST use the `tracing` crate for structured logging. Log levels:
+- ERROR: unrecoverable failures affecting functionality
+- WARN: recoverable issues (missing config, degraded features)
+- INFO: significant lifecycle events (server start, project indexed)
+- DEBUG: detailed operation traces (helpful for issue reports)
+- TRACE: verbose internal state (disabled in release builds)
+
+### Documentation
+All public modules, structs, functions, and traits MUST have doc comments.
+Complex algorithms MUST have inline comments explaining non-obvious logic.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution supersedes all other project practices and guidelines.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Amendments** require:
+1. Documented rationale for the change
+2. Impact analysis on existing code and templates
+3. Migration plan if breaking existing practices
+4. Version bump (MAJOR for breaking changes, MINOR for additions, PATCH for clarifications)
+
+**Compliance**: All pull requests MUST verify adherence to these principles.
+Code reviews MUST check for async-blocking operations, panic paths, missing tests,
+and undocumented APIs.
+
+**Runtime Guidance**: Developers SHOULD consult `CLAUDE.md` for agent-specific
+development workflows. When conflicts arise, this constitution takes precedence.
+
+**Version**: 1.0.0 | **Ratified**: 2025-12-02 | **Last Amended**: 2025-12-02

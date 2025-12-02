@@ -105,6 +105,15 @@
 <!--
   ACTION REQUIRED: Define measurable success criteria.
   These must be technology-agnostic and measurable.
+  
+  For PHP LSP Server: All features must comply with constitution principles:
+  - Async/non-blocking (Principle I)
+  - PHP version aware (Principle II) 
+  - PHPDoc support (Principle III)
+  - WordPress hooks if applicable (Principle IV)
+  - Incremental parsing (Principle V)
+  - Extension validation if applicable (Principle VI)
+  - Reliable: no panics, tested, logged, documented (Principle VII)
 -->
 
 ### Measurable Outcomes
@@ -113,3 +122,10 @@
 - **SC-002**: [Measurable metric, e.g., "System handles 1000 concurrent users without degradation"]
 - **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
 - **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]
+
+### Constitution Compliance
+
+- **Quality**: Feature has unit tests, 80%+ coverage target
+- **Reliability**: No panic paths, Result/Option error handling
+- **Observability**: Tracing logs for significant operations
+- **Documentation**: Public APIs documented with doc comments

@@ -17,21 +17,56 @@
   the iteration process.
 -->
 
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Language/Version**: Rust 2021+ (Constitution mandates Rust edition 2021 or 2024)
+**Primary Dependencies**: async-lsp 0.2.2, tree-sitter-php 0.24.2, tokio, tower
+**Storage**: In-memory index structures (memory-efficient, incremental)
+**Testing**: cargo test (unit + integration tests, 80%+ coverage target)
+**Target Platform**: Cross-platform (Linux, macOS, Windows) as LSP server
+**Project Type**: single (LSP server library + binary)
+**Performance Goals**: Non-blocking async handlers, incremental parsing on edits
+**Constraints**: <8GB RAM for 1000+ file projects, no blocking operations
+**Scale/Scope**: Large PHP projects (1000+ files), WordPress codebases
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+<!-- Reference: .specify/memory/constitution.md -->
+
+**Async Architecture (Principle I)**:
+- [ ] All LSP handlers use async/await patterns
+- [ ] No blocking operations on tokio runtime
+- [ ] Tower middleware layers are composable and non-blocking
+
+**PHP Version Compliance (Principle II)**:
+- [ ] composer.json PHP version detection implemented
+- [ ] Code analysis respects detected PHP version features
+
+**PHPDoc Support (Principle III)**:
+- [ ] Parser handles standard tags (@param, @return, @var, @throws, @property)
+- [ ] Template/generic type support (@template, @extends, @implements)
+- [ ] Psalm/PHPStan annotations supported
+
+**WordPress Integration (Principle IV)**:
+- [ ] (If applicable) Go-to-definition for WordPress hooks implemented
+- [ ] Cross-file hook discovery working
+
+**Incremental Parsing (Principle V)**:
+- [ ] Tree-sitter incremental parsing used for edits
+- [ ] Index structures support partial updates
+- [ ] Memory usage tested with large projects (1000+ files)
+
+**Extension Validation (Principle VI)**:
+- [ ] Extension usage detection implemented
+- [ ] Warning system for missing ext-* dependencies
+
+**Reliability Standards (Principle VII)**:
+- [ ] No panic paths in code
+- [ ] Result/Option types used for error handling
+- [ ] Tracing logs for LSP operations
+- [ ] Public APIs documented
+- [ ] Tests written per feature (unit + integration as needed)
+- [ ] Test coverage target: 80%+
 
 ## Project Structure
 
@@ -56,39 +91,21 @@ specs/[###-feature]/
 -->
 
 ```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
+# PHP LSP Server - Single Rust project structure
 src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+├── lsp/           # LSP protocol handlers
+├── parser/        # tree-sitter-php integration
+├── analysis/      # Type inference, symbol resolution
+├── index/         # Project indexing, symbol database
+├── phpdoc/        # PHPDoc parsing
+├── wordpress/     # WordPress hooks support
+└── main.rs        # Binary entry point
 
 tests/
-├── contract/
-├── integration/
-└── unit/
+├── integration/   # End-to-end LSP scenarios
+└── unit/          # Module-level tests
 
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+Cargo.toml         # Dependencies: async-lsp, tree-sitter-php, tokio, tower
 ```
 
 **Structure Decision**: [Document the selected structure and reference the real
