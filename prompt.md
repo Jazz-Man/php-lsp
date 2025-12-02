@@ -4,6 +4,20 @@
 
 This is a custom Language Server Protocol (LSP) server for PHP, implemented in Rust using `async-lsp` and following Specification-Driven Development (SDD) principles with `spec-kit-plus`. The goal is to create a lightweight, modular, and hackable LSP that provides full PHP language support comparable to PHPStorm's built-in capabilities.
 
+## Personal Motivation & Business Case
+
+### Personal Motivation
+One of my main motivations for this project is that I've long dreamed of writing an LSP server in Rust using modern async tools. I'm also not satisfied with the current state of PHP support in existing tools. I've used [Intelephense](https://intelephense.com/) extensively — while it's quite powerful and feature-rich, it often feels heavy, opaque, and hard to extend or debug. Similarly, JetBrains IDEs, although popular, tend to be resource-intensive and somewhat rigid for modern PHP workflows. What I really want is something lightweight, modular, and hackable — a language server that's truly optimized for my workflow and that I fully control. That's what pushed me toward building a custom solution from scratch.
+
+### Business Value & Time Savings
+This custom LSP is not just a technical exercise - it's a strategic investment that will save me significant time and money:
+
+- **License Cost Savings**: Avoiding annual subscriptions to PhpStorm (~$100-200/year) or Intelephense (~$40-100/year) by having a custom, open-source solution
+- **Time Efficiency**: Having full control over the LSP means I can optimize it specifically for my workflow and the specific PHP projects I work on
+- **Customization**: Tailor the LSP to my exact needs rather than paying for features I don't use in commercial solutions
+- **WordPress-Specific Features**: The advanced WordPress hooks system support that only PHPStorm provides adequately (but at a high cost) will be available in my custom Zed-based setup
+- **Long-term Maintainability**: Having source code control means I can maintain and extend the LSP as my needs evolve without being dependent on third-party vendors
+
 ## Technical Stack
 
 - **Language**: Rust
