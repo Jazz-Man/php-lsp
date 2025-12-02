@@ -1,0 +1,9 @@
+[package]
+name = "php-lsp"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+async-lsp = "0.2.2"
+tree-sitter = "0.25.10"
+tree-sitter-php = "0.24.2"
