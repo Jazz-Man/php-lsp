@@ -1,1 +1,13 @@
-/target
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build
+/target/
+
+# Agent settings (may contain keys)
+.claude/settings.json
+.qwen/settings.json
+.gemini/settings.json
