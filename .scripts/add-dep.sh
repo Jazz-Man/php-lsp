@@ -1,20 +1,11 @@
 #!/bin/bash
-# Wrapper для cargo add з автоматичною генерацією документації
 set -e
-
 if [ -z "$1" ]; then
-    echo "Usage: ./scripts/add-dep.sh <crate-name> [cargo add options]"
+    echo "Usage: .scripts/add-dep.sh <crate> [options]"
     exit 1
 fi
-
-echo "📦 Adding dependency: $@"
-cargo add "$@"
-
-echo "📚 Regenerating documentation..."
-cargo doc --no-deps
-cargo doc-md
-
-echo "✅ Done! Documentation updated at target/doc-md/"
-echo ""
-echo "📖 Crate info:"
-cargo info "$1" 2>/dev/null || echo "Run: cargo info $1"
+CRATE=$1; shift
+echo "📦 Adding: $CRATE $@"
+cd crates/php-lsp && cargo add "$CRATE" "$@" && cd ../..
+.scripts/regen-docs.sh
+cargo info "$CRATE" 2>/dev/null || true
